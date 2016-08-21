@@ -1,49 +1,18 @@
+package algorithms;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.videoio.VideoCapture;
 
-public class Test {
-	public static void main(String[] args) throws IOException{
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat  hsv, mascara, resultado;
-        Mat mat = new Mat();
-        VideoCapture camera = new VideoCapture("video.mp4");
-        camera.read(mat);
-        guardarImagen( mat,"proof.jpg");
-        
-        Mat mat1 = new Mat(mat.rows(), mat.cols(),mat.type());	         
-        
-        
-        Imgproc.cvtColor(mat, mat1, Imgproc.COLOR_RGB2HSV);
-        
-        ArrayList<Mat> hsv_channel = new ArrayList<Mat>();
-        Core.split(mat1, hsv_channel);	         
-        guardarImagen(hsv_channel.get(0),"h.jpg");
-        
-        Mat normalizada=normalizar(hsv_channel.get(0),hsv_channel.get(0).type());
-        guardarImagen( normalizada,"normalizada.jpg");
-        
-        Mat varianza =imagenVarianza(normalizada,normalizada.type());
-        guardarImagen( varianza,"varianza.jpg");
-        
-        Mat umbral =umbralizacion(varianza);
-        guardarImagen( umbral,"UmbralconHuecos.jpg");
-        
-        Mat resultadoUmbral=rellenarHuecos(umbral);
-        guardarImagen( resultadoUmbral,"umbral.jpg");
-        
-        hsv = convertirHSV(mat);
-        mascara = obtenerMascara(hsv);
-        resultado = rellenarRuido(mascara);
-        resultado = rellenarHuecos(resultado);
-        guardarImagen(mascara, "mascara.jpg");
-        guardarImagen(resultado, "resultado.jpg");
-	}
-	
+public class algoritms {
 	public static Mat cargarImagen(String path) throws IOException{
 		Mat res = Imgcodecs.imread(path);
 		if(res.empty())
@@ -110,8 +79,8 @@ public class Test {
 		Mat resultado= new Mat(filas,columnas,cvType);
 		Rect ventana;
 		Mat ImagenCortada;
-		int ancho=10;//ancho predeterminado se puede cambiar para optimizar
-		int alto=10;//alto predeterminado se puede cambiar para optimizar
+		int ancho=7;//ancho predeterminado se puede cambiar para optimizar
+		int alto=8;//alto predeterminado se puede cambiar para optimizar
 		int anchoAux,altoAux;
 		for (int fila=0;fila<filas;fila++){
 			for(int columna=0;columna<columnas;columna++){
@@ -148,5 +117,35 @@ public class Test {
 			}			
 		}
 		return resultado;
+	}
+	
+
+	public static Mat obtenerHue(Mat imagen){
+		ArrayList<Mat> canalesHsv = new ArrayList<Mat>();
+        Core.split(imagen, canalesHsv);
+		return canalesHsv.get(0);//obtener el canal 0 del hue		
+	}
+	public static Boolean equals(Mat mat1,Mat mat2){		
+		if(mat1.empty() && mat2.empty()){
+			return true;
+		}
+		if(mat1.cols()!=mat2.cols() || mat1.rows()!=mat2.rows() || mat1.dims()!=mat2.dims()){
+			System.out.println("here");
+			return false;
+		}
+		for (int fila=0;fila<mat1.rows();fila++){
+			for(int columna=0;columna<mat1.cols();columna++){
+				double[] canales1=mat1.get(fila, columna);
+				double[] canales2=mat2.get(fila, columna);
+				for(int element=0;element<mat1.dims();element++){
+					System.out.println(canales1[element]+"   "+canales2[element]);
+					if(canales1[element]!=canales2[element]){
+						return false;
+					}
+				}
+				System.out.println("---------------------------");
+			}			
+		}
+		return true;
 	}
 }
