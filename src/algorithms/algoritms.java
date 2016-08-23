@@ -138,7 +138,6 @@ public class algoritms {
 				double[] canales1=mat1.get(fila, columna);
 				double[] canales2=mat2.get(fila, columna);
 				for(int element=0;element<mat1.dims();element++){
-					System.out.println(canales1[element]+"   "+canales2[element]);
 					if(canales1[element]!=canales2[element]){
 						return false;
 					}
